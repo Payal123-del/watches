@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Checkout — My Shop</title>
+    <link rel="stylesheet" href="b.css">
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Shop</a></li>
+            <li><a href="cart.html">Cart</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <h1>Checkout</h1>
+
+    <form id="checkout-form" style="background:white;padding:20px;border-radius:10px;">
+        <label>Name</label><br>
+        <input name="name" required style="width:100%;padding:8px;margin-bottom:8px"><br>
+
+        <label>Email</label><br>
+        <input name="email" type="email" required style="width:100%;padding:8px;margin-bottom:8px"><br>
+
+        <label>Address</label><br>
+        <textarea name="address" required style="width:100%;padding:8px;margin-bottom:12px"></textarea><br>
+
+        <h3>Payment Method</h3>
+        <label><input type="radio" name="payment" value="cod" required> Cash on Delivery (COD)</label><br>
+        <label><input type="radio" name="payment" value="upi"> UPI</label><br>
+        <label><input type="radio" name="payment" value="qr"> QR Code Payment</label><br>
+        <label><input type="radio" name="payment" value="card"> Credit/Debit Card</label><br><br>
+
+        <button type="submit" class="add-to-cart" style="cursor:pointer;">Place Order</button>
+    </form>
+
+    <div id="checkout-msg" style="margin-top:20px;color:green;font-weight:bold;"></div>
+</main>
+
+<footer>
+    <div class="footer-bottom"><p>&copy; 2025 My Shop</p></div>
+</footer>
+
+<script src="main.js"></script>
+
+<script>
+document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = new FormData(e.target);
+    const customer = {
+        name: data.get('name'),
+        email: data.get('email'),
+        address: data.get('address'),
+        payment: data.get('payment')
+    };
+
+    const cart = getCart();
+    if (!cart || cart.length === 0) {
+        document.getElementById('checkout-msg').innerText = "Cart is empty!";
+        return;
+    }
+
+    const resp = await submitOrder({cart, customer});
+    if (resp && resp.success) {
+        document.getElementById('checkout-msg').innerHTML =
+            `Order placed successfully!<br>Order ID: <b>${resp.order_id}</b><br>Total: $${resp.total.toFixed(2)}`;
+        clearCart();
+    } else {
+        document.getElementById('checkout-msg').innerText = 'Order failed.';
+    }
+});
+</script>
+
+</body>
+</html>
