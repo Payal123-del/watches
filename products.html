@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Products — My Shop</title>
+    <link rel="stylesheet" href="b.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Products</h1>
+        <div id="products-list" class="related-products"></div>
+    </main>
+
+    <footer>
+        <div class="footer-bottom"><p>&copy; 2025 My Shop</p></div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // Render products on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const products = await fetchProducts();
+            const container = document.getElementById('products-list');
+            container.innerHTML = '';
+            products.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'product';
+                const img = productImageUrl(p);
+                el.innerHTML = `
+                    <img src="${img}" alt="${p.name}" class="product-image">
+                    <div class="product-details">
+                        <h3>${p.name}</h3>
+                        <p class="price">$${p.price.toFixed(2)}</p>
+                    </div>
+                    <div style="margin-top:8px">
+                      <a href="product.html?id=${p.id}" class="add-to-cart">View</a>
+                      <button class="add-to-cart" onclick="addToCart(${p.id}, 1)">Add to cart</button>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        });
+    </script>
+</body>
+</html>

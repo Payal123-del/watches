@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Product — My Shop</title>
+    <link rel="stylesheet" href="b.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div id="product-container" class="product"></div>
+    </main>
+
+    <footer>
+        <div class="footer-bottom"><p>&copy; 2025 My Shop</p></div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(location.search);
+            const id = params.get('id');
+            if (!id) {
+                document.getElementById('product-container').innerText = 'No product id provided.';
+                return;
+            }
+            try {
+                const p = await fetchProduct(id);
+                const container = document.getElementById('product-container');
+                const img = productImageUrl(p);
+                container.innerHTML = `
+                    <div class="gallery">
+                        <img id="main-image" src="${img}" alt="${p.name}">
+                    </div>
+                    <div class="details">
+                        <h2>${p.name}</h2>
+                        <p class="price" id="price">$${p.price.toFixed(2)}</p>
+                        <p class="description">${p.description || ''}</p>
+                        <div>
+                            <input id="qty" type="number" value="1" min="1" style="width:60px;padding:6px;margin-right:8px">
+                            <button class="add-to-cart" onclick="addToCart(${p.id}, parseInt(document.getElementById('qty').value) || 1)">Add to cart</button>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                document.getElementById('product-container').innerText = 'Product not found.';
+            }
+        });
+    </script>
+</body>
+</html>

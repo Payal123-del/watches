@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cart — My Shop</title>
+    <link rel="stylesheet" href="b.css">
+
+    <style>
+        .cart-item {
+            display: flex;
+            gap: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .cart-item img {
+            width: 120px;
+            border-radius: 8px;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-title {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .item-price {
+            color: #c0392b;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .qty-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .qty-btn {
+            padding: 6px 12px;
+            cursor: pointer;
+            background: #444;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+        }
+
+        .remove-btn {
+            margin-top: 12px;
+            background: #d63031;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .cart-total-box {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f6f6f6;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Your Cart</h1>
+
+        <div id="cart-contents"></div>
+        <div id="cart-total" class="cart-total-box"></div>
+
+        <div style="margin-top:20px">
+            <a href="checkout.html" class="add-to-cart">Proceed to Checkout</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-bottom"><p>&copy; 2025 My Shop</p></div>
+    </footer>
+
+    <script src="main.js"></script>
+
+    <script>
+        async function renderCart() {
+            const cartDiv = document.getElementById("cart-contents");
+            const totalDiv = document.getElementById("cart-total");
+
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            let products = await fetchProducts();
+
+            cartDiv.innerHTML = "";
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartDiv.innerHTML = "<p>Your cart is empty.</p>";
+                totalDiv.innerHTML = "";
+                return;
+            }
+
+            cart.forEach(item => {
+                const p = products.find(pr => pr.id == item.id);
+                const img = productImageUrl(p);
+                const subtotal = p.price * item.qty;
+                total += subtotal;
+
+                cartDiv.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${img}" alt="${p.name}">
+
+                        <div class="item-info">
+                            <div class="item-title">${p.name}</div>
+                            <div class="item-price">$${p.price.toFixed(2)}</div>
+
+                            <div class="qty-box">
+                                <button class="qty-btn" onclick="updateQty(${p.id}, -1)">−</button>
+                                <span>${item.qty}</span>
+                                <button class="qty-btn" onclick="updateQty(${p.id}, 1)">+</button>
+                            </div>
+
+                            <div style="margin-top:8px">Subtotal: <b>$${subtotal.toFixed(2)}</b></div>
+
+                            <button class="remove-btn" onclick="removeItem(${p.id})">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            totalDiv.innerHTML = `Total: $${total.toFixed(2)}`;
+        }
+
+        // Increase or Decrease Qty
+        function updateQty(id, change) {
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            let item = cart.find(i => i.id == id);
+
+            if (!item) return;
+
+            item.qty += change;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id != id);
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+        }
+
+        // Remove item
+        function removeItem(id) {
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            cart = cart.filter(i => i.id != id);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+        }
+
+        document.addEventListener("DOMContentLoaded", renderCart);
+    </script>
+
+</body>
+</html>
